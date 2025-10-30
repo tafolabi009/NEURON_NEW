@@ -1,0 +1,3 @@
+[console_scripts]
+neuronsv2-benchmark = training.efficiency_benchmark:main
+neuronsv2-train = training.train_loop:main

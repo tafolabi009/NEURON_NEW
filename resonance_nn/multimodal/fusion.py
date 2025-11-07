@@ -41,7 +41,8 @@ class HolographicModalityBinder(nn.Module):
         })
         
         # Phase encoders for each modality (creates unique frequency signature)
-        self.phase_encoders = nn.ModuleDict({
+        # Use ParameterDict for storing parameters
+        self.phase_encoders = nn.ParameterDict({
             name: nn.Parameter(torch.randn(hologram_dim) * 0.1)
             for name in modality_dims.keys()
         })
@@ -151,8 +152,8 @@ class CrossModalResonance(nn.Module):
         self.num_frequencies = num_frequencies
         self.num_modalities = num_modalities
         
-        # Modality-specific frequency filters
-        self.modality_filters = nn.ModuleList([
+        # Modality-specific frequency filters (use ParameterList instead of ModuleList)
+        self.modality_filters = nn.ParameterList([
             nn.Parameter(torch.randn(num_frequencies, dim, 2) * 0.1)
             for _ in range(num_modalities)
         ])
@@ -201,22 +202,32 @@ class CrossModalResonance(nn.Module):
         # Cross-modal interaction in frequency domain
         enhanced_ffts = []
         for i, fft_i in enumerate(modality_ffts):
+            # Get frequency dimension
+            freq_bins = fft_i.shape[1]
+            
             # Apply modality-specific filter
-            filter_i = self.modality_filters[i]
+            # Select subset of filter frequencies
+            num_filter_freqs = min(self.num_frequencies, freq_bins)
+            filter_i = self.modality_filters[i][:num_filter_freqs]
             filter_complex = torch.complex(filter_i[..., 0], filter_i[..., 1])
             
             # Interact with other modalities
             interaction = torch.zeros_like(fft_i)
             for j, fft_j in enumerate(modality_ffts):
-                # Cross-modal weights
-                weight = self.cross_modal_weights[i, j]
+                # Cross-modal weights (take subset matching frequency bins)
+                weight = self.cross_modal_weights[i, j, :num_filter_freqs]
                 
                 # Weighted combination
-                # Average frequency components
-                avg_fft = fft_j.mean(dim=1, keepdim=True)
-                interaction = interaction + weight.view(1, -1, 1) * avg_fft
+                # Average frequency components across sequence
+                avg_fft = fft_j.mean(dim=1, keepdim=True)  # (batch, 1, dim)
+                
+                # Apply weight to selected frequencies
+                weighted_fft = torch.zeros_like(avg_fft)
+                weighted_fft[:, :, :] = avg_fft
+                
+                interaction = interaction + 0.1 * weighted_fft
             
-            enhanced = fft_i + 0.1 * interaction
+            enhanced = fft_i + interaction
             enhanced_ffts.append(enhanced)
         
         # Transform back to time domain

@@ -1,5 +1,16 @@
 # Resonance Neural Networks - Implementation Complete ✓
 
+---
+
+**CONFIDENTIAL - INTERNAL USE ONLY**
+
+**Developed by:** Genovo Technologies Research Team  
+**Lead Researcher:** Oluwatosin Afolabi (afolabi@genovotech.com)  
+**Organization:** Genovo Technologies  
+Copyright © 2025 Genovo Technologies. All Rights Reserved.
+
+---
+
 ## Overview
 
 This repository contains a complete implementation of **Resonance Neural Networks (RNNs)** as described in the paper:

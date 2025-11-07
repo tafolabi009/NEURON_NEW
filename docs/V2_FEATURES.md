@@ -1,4 +1,15 @@
-# Resonance Neural Networks V2.0 - New Features
+# Resonance Neural Networks V2 - Enhanced Features
+
+---
+
+**CONFIDENTIAL - INTERNAL USE ONLY**
+
+**Developed by:** Genovo Technologies Research Team  
+**Lead Researcher:** Oluwatosin Afolabi (afolabi@genovotech.com)  
+**Organization:** Genovo Technologies  
+Copyright © 2025 Genovo Technologies. All Rights Reserved.
+
+---
 
 ## Overview
 

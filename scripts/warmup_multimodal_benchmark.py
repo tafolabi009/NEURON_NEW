@@ -45,9 +45,10 @@ def benchmark_multimodal_with_warmup(
     # Create model
     print("\nCreating MultiModalResonanceFusion...")
     model = MultiModalResonanceFusion(
-        model_dim=model_dim,
+        modality_dims={'vision': model_dim, 'audio': model_dim, 'text': model_dim},
+        hidden_dim=model_dim,
+        num_cross_modal_layers=num_layers,
         num_frequencies=num_frequencies,
-        num_layers=num_layers,
     ).to(device)
     
     # Wrap with warmup wrapper
@@ -194,9 +195,10 @@ def compare_with_without_warmup():
     # Test without warmup
     print("\n[1] Testing WITHOUT warmup wrapper...")
     model = MultiModalResonanceFusion(
-        model_dim=768,
+        modality_dims={'vision': 768, 'audio': 768, 'text': 768},
+        hidden_dim=768,
+        num_cross_modal_layers=4,
         num_frequencies=64,
-        num_layers=4,
     ).cuda()
     model.eval()
     

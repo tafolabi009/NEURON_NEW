@@ -129,34 +129,36 @@ def compare_layers():
         
         # Compiled layer with torch.compile
         print("\n[3] Compiled ResonanceLayer (torch.compile)")
-        compiled_layer = ResonanceLayer(
-            input_dim=config['hidden_dim'],
-            num_frequencies=64,
-            optimize=True,
-            use_compile=True,
-        )
-        if hasattr(torch, 'compile'):
-            compiled_layer = torch.compile(compiled_layer, mode='max-autotune')
-        compiled_results = benchmark_layer(
-            compiled_layer,
-            config['batch_size'],
-            config['seq_len'],
-            config['hidden_dim'],
-            warmup=20,  # More warmup for compilation
-        )
-        print(f"  Time: {compiled_results['mean_time_ms']:.2f} ± {compiled_results['std_time_ms']:.2f} ms")
-        print(f"  Throughput: {compiled_results['throughput_samples_per_sec']:.1f} samples/sec")
-        print(f"  Throughput: {compiled_results['throughput_tokens_per_sec']:,.0f} tokens/sec")
+        print("  Note: torch.compile() has issues with complex tensor operations")
+        print("  Skipping compiled test for now...")
+        # compiled_layer = ResonanceLayer(
+        #     input_dim=config['hidden_dim'],
+        #     num_frequencies=64,
+        #     optimize=True,
+        #     use_compile=True,
+        # )
+        # if hasattr(torch, 'compile'):
+        #     compiled_layer = torch.compile(compiled_layer, mode='max-autotune')
+        # compiled_results = benchmark_layer(
+        #     compiled_layer,
+        #     config['batch_size'],
+        #     config['seq_len'],
+        #     config['hidden_dim'],
+        #     warmup=20,  # More warmup for compilation
+        # )
+        # print(f"  Time: {compiled_results['mean_time_ms']:.2f} ± {compiled_results['std_time_ms']:.2f} ms")
+        # print(f"  Throughput: {compiled_results['throughput_samples_per_sec']:.1f} samples/sec")
+        # print(f"  Throughput: {compiled_results['throughput_tokens_per_sec']:,.0f} tokens/sec")
         
         # Speedup
         print("\n" + "-"*80)
         print("SPEEDUP ANALYSIS")
         print("-"*80)
         optimized_speedup = optimized_results['throughput_samples_per_sec'] / standard_results['throughput_samples_per_sec']
-        compiled_speedup = compiled_results['throughput_samples_per_sec'] / standard_results['throughput_samples_per_sec']
+        # compiled_speedup = compiled_results['throughput_samples_per_sec'] / standard_results['throughput_samples_per_sec']
         
         print(f"Optimized vs Standard: {optimized_speedup:.2f}x")
-        print(f"Compiled vs Standard:  {compiled_speedup:.2f}x")
+        # print(f"Compiled vs Standard:  {compiled_speedup:.2f}x")
 
 
 def benchmark_full_model():
@@ -192,7 +194,8 @@ def benchmark_full_model():
     
     # Optimize model
     print("\n[2] Optimizing model with optimize_resonance_model()...")
-    optimized_model = optimize_resonance_model(standard_model)
+    print("    (torch.compile() disabled due to complex tensor compatibility)")
+    optimized_model = optimize_resonance_model(standard_model, use_compile=False)
     
     # Benchmark optimized model
     print(f"\nBenchmarking optimized model (batch={batch_size}, seq={seq_len})...")

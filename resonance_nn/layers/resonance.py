@@ -170,7 +170,7 @@ class ResonanceLayer(nn.Module):
         
         return x_output
     
-    @torch.cuda.amp.autocast()
+    @torch.amp.autocast('cuda' if torch.cuda.is_available() else 'cpu')
     def _forward_optimized(self, x: torch.Tensor) -> torch.Tensor:
         """
         Optimized forward pass with:
@@ -398,16 +398,20 @@ class FusedResonanceStack(nn.Module):
         return x
 
 
-def optimize_resonance_model(model: nn.Module, use_compile: bool = True) -> nn.Module:
+def optimize_resonance_model(model: nn.Module, use_compile: bool = False) -> nn.Module:
     """
     Optimize a resonance model for production use
     
     Args:
         model: Model containing ResonanceLayer modules
-        use_compile: Whether to use torch.compile() (requires PyTorch 2.0+)
+        use_compile: Whether to use torch.compile() (disabled by default due to complex tensor issues)
     
     Returns:
         Optimized model
+    
+    Note:
+        torch.compile() currently has issues with complex tensor operations.
+        Set use_compile=False (default) to avoid errors.
     """
     # Enable optimization flags on all ResonanceLayer instances
     for module in model.modules():
@@ -416,13 +420,17 @@ def optimize_resonance_model(model: nn.Module, use_compile: bool = True) -> nn.M
             module.use_compile = False  # Will be handled by top-level compile
     
     # Apply torch.compile for kernel fusion
+    # NOTE: Currently disabled by default due to complex tensor view issues
     if use_compile and hasattr(torch, 'compile'):
+        print("Warning: torch.compile() may fail with complex tensor operations")
         try:
             model = torch.compile(model, mode='max-autotune')
             print("✓ Model compiled with torch.compile(mode='max-autotune')")
         except Exception as e:
             print(f"Warning: torch.compile() failed: {e}")
             print("Falling back to non-compiled optimizations")
+    else:
+        print("✓ Model optimized (torch.compile() disabled due to complex tensor compatibility)")
     
     return model
 

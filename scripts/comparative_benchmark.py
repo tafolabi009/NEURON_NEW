@@ -113,12 +113,23 @@ class ComparativeBenchmark:
         
         try:
             from transformers import AutoModelForCausalLM, AutoTokenizer
+            from huggingface_hub import login
+            import os
+            
+            # Login with token from environment
+            hf_token = os.environ.get('HF_TOKEN', None)
+            if hf_token:
+                try:
+                    login(token=hf_token)
+                except:
+                    pass  # Already logged in
             
             print("Loading model...")
             model = AutoModelForCausalLM.from_pretrained(
                 model_name,
                 torch_dtype=torch.float16,
                 device_map='auto',
+                token=hf_token,
             )
             tokenizer = AutoTokenizer.from_pretrained(model_name)
             

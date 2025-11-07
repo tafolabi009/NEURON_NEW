@@ -42,10 +42,15 @@ def benchmark_multimodal_with_warmup(
     print(f"Sequence lengths - Vision: {vision_seq_len}, Audio: {audio_seq_len}, Text: {text_seq_len}")
     print(f"Warmup iterations: {warmup_iterations}, Benchmark iterations: {num_iterations}")
     
-    # Create model
+        # Create model
     print("\nCreating MultiModalResonanceFusion...")
+    modality_dims = {
+        'vision': model_dim,
+        'audio': model_dim,
+        'text': model_dim,
+    }
     model = MultiModalResonanceFusion(
-        modality_dims={'vision': model_dim, 'audio': model_dim, 'text': model_dim},
+        modality_dims=modality_dims,
         hidden_dim=model_dim,
         num_cross_modal_layers=num_layers,
         num_frequencies=num_frequencies,
@@ -67,12 +72,19 @@ def benchmark_multimodal_with_warmup(
     audio_input = torch.randn(batch_size, audio_seq_len, model_dim, device=device)
     text_input = torch.randn(batch_size, text_seq_len, model_dim, device=device)
     
+    # Package as dictionary
+    modality_inputs = {
+        'vision': vision_input,
+        'audio': audio_input,
+        'text': text_input,
+    }
+    
     # Warmup phase (will be handled by WarmupWrapper automatically)
     print(f"\nWarming up JIT compilation ({warmup_iterations} iterations)...")
     print("This reduces variance by stabilizing CUDA kernels...")
     
     with torch.no_grad():
-        _ = model(vision_input, audio_input, text_input)
+        _ = model(modality_inputs)
     
     torch.cuda.synchronize()
     print("Warmup complete!")
@@ -96,7 +108,7 @@ def benchmark_multimodal_with_warmup(
         start_time = time.perf_counter()
         
         with torch.no_grad():
-            output = model(vision_input, audio_input, text_input)
+            output = model(modality_inputs)
         
         # Synchronize after computation
         torch.cuda.synchronize()

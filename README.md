@@ -19,7 +19,7 @@
 
 **Contact:** afolabi@genovotech.com  **Developed by:** Genovo Technologies Research Team  
 
-**Status:** Proprietary Research Project**Lead Researcher:** Oluwatosin Afolabi  
+**Status:** Proprietary Research Project **Lead Researcher:** Oluwatosin Afolabi  
 
 **Contact:** afolabi@genovotech.com  
 
